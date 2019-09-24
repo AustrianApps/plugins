@@ -70,6 +70,7 @@ public class WebViewActivity extends Activity {
     final String url = intent.getStringExtra(URL_EXTRA);
     final boolean enableJavaScript = intent.getBooleanExtra(ENABLE_JS_EXTRA, false);
     final boolean enableDomStorage = intent.getBooleanExtra(ENABLE_DOM_EXTRA, false);
+    final boolean enableDebug = intent.getBooleanExtra(ENABLE_DEBUG_EXTRA, false);
     final Bundle headersBundle = intent.getBundleExtra(Browser.EXTRA_HEADERS);
 
     final Map<String, String> headersMap = extractHeaders(headersBundle);
@@ -77,6 +78,10 @@ public class WebViewActivity extends Activity {
 
     webview.getSettings().setJavaScriptEnabled(enableJavaScript);
     webview.getSettings().setDomStorageEnabled(enableDomStorage);
+    // enable this application wide once any webview is debuggable
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && enableDebug) {
+      WebView.setWebContentsDebuggingEnabled(true);
+    }
 
     // Open new urls inside the webview itself.
     webview.setWebViewClient(webViewClient);
@@ -112,6 +117,7 @@ public class WebViewActivity extends Activity {
   private static String URL_EXTRA = "url";
   private static String ENABLE_JS_EXTRA = "enableJavaScript";
   private static String ENABLE_DOM_EXTRA = "enableDomStorage";
+  private static String ENABLE_DEBUG_EXTRA = "enableDebug";
 
   /* Hides the constants used to forward data to the Activity instance. */
   public static Intent createIntent(
@@ -119,11 +125,13 @@ public class WebViewActivity extends Activity {
       String url,
       boolean enableJavaScript,
       boolean enableDomStorage,
+      boolean enableDebug,
       Bundle headersBundle) {
     return new Intent(context, WebViewActivity.class)
         .putExtra(URL_EXTRA, url)
         .putExtra(ENABLE_JS_EXTRA, enableJavaScript)
         .putExtra(ENABLE_DOM_EXTRA, enableDomStorage)
+        .putExtra(ENABLE_DEBUG_EXTRA, enableDebug)
         .putExtra(Browser.EXTRA_HEADERS, headersBundle);
   }
 }
